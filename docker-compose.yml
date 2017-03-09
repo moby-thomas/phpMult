@@ -1,0 +1,54 @@
+web:
+  image: simplyworkflow/nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./src:/var/www
+    - ./src/actavo.conf:/etc/nginx/sites-enabled/actavo.conf
+    - ./src/scottishpower.conf:/etc/nginx/sites-enabled/scottishpower.conf
+    - ./src/icl.conf:/etc/nginx/sites-enabled/icl.conf
+  links:
+    - phpActavo
+    - phpScottishPower
+    - phpIcl 
+
+phpActavo:
+  image: nmcteam/php56
+  volumes:
+    - ./src/php-fpm.conf:/etc/php5/fpm/php-fpm.conf
+    - ./src/actavo:/var/www
+  links:
+    - db
+
+phpScottishPower:
+  image: nmcteam/php56
+  volumes:
+    - ./src/php-fpm.conf:/etc/php5/fpm/php-fpm.conf
+    - ./src/scottishpower:/var/www
+  links:
+    - db
+ 
+phpIcl:
+  image: nmcteam/php56
+  volumes:
+    - ./src/php-fpm.conf:/etc/php5/fpm/php-fpm.conf
+    - ./src/icl:/var/www
+  links:
+    - db 
+
+db:
+  image: mariadb
+  volumes:
+   - /var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=admin 
+    
+phpmyadmin:
+   image: phpmyadmin/phpmyadmin
+   restart: always 
+   ports:
+     - "8081:80"
+   environment:
+     - PMA_ARBITRARY=1 
+   links: 
+     - db
